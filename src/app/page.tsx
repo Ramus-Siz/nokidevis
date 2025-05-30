@@ -93,7 +93,7 @@ export default function Home() {
               <Github className="mr-2 h-4 w-4" /> Github
             </Button>
             <Button variant="outline" className="w-full">
-              <Mail className="mr-2 h-4 w-4" /> Mail
+              <Mail className="mr-2 h-4 w-4" /> Google
             </Button>
           </div>
 
