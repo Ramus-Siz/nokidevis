@@ -4,6 +4,7 @@ import * as React from "react"
 import {
   AudioWaveform,
   BookOpen,
+  LayoutDashboard	,
   Bot,
   Command,
   Frame,
@@ -12,6 +13,13 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
+  Hammer,
+  Users,
+  BarChart2,
+  Settings,
+  User,
+  
+  
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -29,119 +37,138 @@ import {
 // This is sample data.
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "ramus",
+    email: "ramus@grafikirdc.com",
     avatar: "/avatars/shadcn.jpg",
   },
   teams: [
     {
-      name: "Acme Inc",
+      name: "Nokidevis",
       logo: GalleryVerticalEnd,
       plan: "Enterprise",
     },
     {
-      name: "Acme Corp.",
+      name: "Nokidevis.",
       logo: AudioWaveform,
       plan: "Startup",
     },
     {
-      name: "Evil Corp.",
+      name: "Nokidevis",
       logo: Command,
       plan: "Free",
     },
   ],
   navMain: [
     {
-      title: "Playground",
+      title: "Dashboard",
       url: "#",
-      icon: SquareTerminal,
+      icon: LayoutDashboard,
       isActive: true,
       items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
+        
       ],
     },
     {
-      title: "Models",
-      url: "#",
+      title: "Devis",
+      url: "/devis",
       icon: Bot,
       items: [
         {
-          title: "Genesis",
-          url: "#",
+          title: "Tous les devis",
+          url: "/devis",
         },
         {
-          title: "Explorer",
+          title: "Ajouter un devis",
           url: "#",
         },
-        {
-          title: "Quantum",
-          url: "#",
-        },
+        
       ],
     },
     {
-      title: "Documentation",
+      title: "Materiaux",
       url: "#",
-      icon: BookOpen,
+      icon: Hammer,
       items: [
         {
-          title: "Introduction",
+          title: "Tous les materiaux",
           url: "#",
         },
         {
-          title: "Get Started",
+          title: "Ajouter un materiau",
           url: "#",
         },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
+       
       ],
     },
     {
-      title: "Settings",
+      title: "Clients",
+      url: "#",
+      icon: Users,
+      items: [
+        {
+          title: "Tous les clients",
+          url: "#",
+        },
+        {
+          title: "Ajouter un client",
+          url: "#",
+        },
+        
+      ],
+    },
+     {
+      title: "Compte",
+      url: "#",
+      icon: User,
+      items: [
+        
+      ],
+    },
+    {
+      title: "Factures",
       url: "#",
       icon: Settings2,
       items: [
         {
-          title: "General",
+          title: "Toutes les factures",
           url: "#",
         },
         {
-          title: "Team",
+          title: "Générer une facture",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Statistiques",
+      url: "#",
+      icon: BarChart2,
+      items: [
+        
+      ],
+    },
+     {
+      title: "Paramettre",
+      url: "#",
+      icon: Settings,
+      items: [
+        {
+          title: "Général",
           url: "#",
         },
         {
-          title: "Billing",
+          title: "Profile",
           url: "#",
         },
-        {
-          title: "Limits",
-          url: "#",
-        },
+        
       ],
     },
   ],
   projects: [
     {
-      name: "Design Engineering",
+      name: "Clients",
       url: "#",
-      icon: Frame,
+      icon: Users,
     },
     {
       name: "Sales & Marketing",
@@ -164,7 +191,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
