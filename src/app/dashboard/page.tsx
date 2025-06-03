@@ -16,12 +16,13 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import DevisTable from "@/components/devisTable";
 
 export default function Page() {
   return (
      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="bg-muted/50 aspect-video rounded-xl relative border p-12 " >
+            <div className="bg-muted/50 aspect-video rounded-xl relative border p-8 " >
               <StatCard
                   title="Devis validés"
                   count={42}
@@ -29,7 +30,7 @@ export default function Page() {
                   icon={FileText}
               />
             </div>
-            <div className="bg-white rounded-xl aspect-video border p-4 shadow relative  p-12 " >
+            <div className="bg-white rounded-xl aspect-video border p-4 shadow relative  p-8 " >
               <StatCard
                   title="Clients"
                   count={44}
@@ -37,7 +38,7 @@ export default function Page() {
                   icon={Users}
               />
             </div>
-            <div className="bg-muted/50 aspect-video rounded-xl relative border p-12 " >
+            <div className="bg-muted/50 aspect-video rounded-xl relative border p-8 " >
               <StatCard
                   title="Devis créé(s)"
                   count={57}
@@ -46,7 +47,11 @@ export default function Page() {
               />
             </div>
           </div>
-          <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+          <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min p-8" >
+            <h1 className="text-xl font-bold mb-4">Mes Devis</h1>
+            <DevisTable />
+          </div>
+
         </div>
 
   )
