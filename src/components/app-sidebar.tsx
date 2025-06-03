@@ -86,12 +86,12 @@ const data = {
     },
     {
       title: "Materiaux",
-      url: "#",
+      url: "/materiaux",
       icon: Hammer,
       items: [
         {
           title: "Tous les materiaux",
-          url: "#",
+          url: "/materiaux",
         },
         {
           title: "Ajouter un materiau",
@@ -102,12 +102,12 @@ const data = {
     },
     {
       title: "Clients",
-      url: "#",
+      url: "/clients",
       icon: Users,
       items: [
         {
           title: "Tous les clients",
-          url: "#",
+          url: "/clients",
         },
         {
           title: "Ajouter un client",
@@ -118,7 +118,7 @@ const data = {
     },
      {
       title: "Compte",
-      url: "#",
+      url: "/profile",
       icon: User,
       items: [
         
@@ -149,16 +149,16 @@ const data = {
     },
      {
       title: "Paramettre",
-      url: "#",
+      url: "/paramettres",
       icon: Settings,
       items: [
         {
           title: "Général",
-          url: "#",
+          url: "/paramettres",
         },
         {
           title: "Profile",
-          url: "#",
+          url: "/profile",
         },
         
       ],
