@@ -36,5 +36,16 @@ export const devisList = [
     client: "BTP Construct",
     createdAt: "2025-05-12T14:00:00Z",
   },
-  // ... ajoute plus pour tester la pagination
+   {
+    id: "DV007",
+    status: "brouillon",
+    client: "BTP Construct",
+    createdAt: "2025-05-12T14:00:00Z",
+  },
+   {
+    id: "DV008",
+    status: "brouillon",
+    client: "BTP Construct",
+    createdAt: "2025-05-12T14:00:00Z",
+  },
 ];
