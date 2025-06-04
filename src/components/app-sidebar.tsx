@@ -47,60 +47,20 @@ const data = {
       logo: GalleryVerticalEnd,
       plan: "Enterprise",
     },
-    {
-      name: "Nokidevis.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Nokidevis",
-      logo: Command,
-      plan: "Free",
-    },
+    
+    
   ],
   navMain: [
     {
       title: "Dashboard",
-      url: "/",
+      url: "/dashboard",
       icon: LayoutDashboard,
       isActive: true,
       items: [
         
       ],
     },
-    {
-      title: "Devis",
-      url: "/devis",
-      icon: Bot,
-      items: [
-        {
-          title: "Tous les devis",
-          url: "/devis",
-        },
-        {
-          title: "Ajouter un devis",
-          url: "#",
-        },
-        
-      ],
-    },
-    {
-      title: "Materiaux",
-      url: "/materiaux",
-      icon: Hammer,
-      items: [
-        {
-          title: "Tous les materiaux",
-          url: "/materiaux",
-        },
-        {
-          title: "Ajouter un materiau",
-          url: "#",
-        },
-       
-      ],
-    },
-    {
+     {
       title: "Clients",
       url: "/clients",
       icon: Users,
@@ -125,6 +85,26 @@ const data = {
       ],
     },
     {
+      title: "Devis",
+      url: "/devis",
+      icon: Bot,
+      items: [
+        {
+          title: "Tous les devis",
+          url: "/devis",
+        },
+        {
+          title: "Ajouter un devis",
+          url: "#",
+        },
+         {
+          title: "Devis validés",
+          url: "#",
+        },
+        
+      ],
+    },
+     {
       title: "Factures",
       url: "#",
       icon: Settings2,
@@ -137,6 +117,22 @@ const data = {
           title: "Générer une facture",
           url: "#",
         },
+      ],
+    },
+    {
+      title: "Materiaux",
+      url: "/materiaux",
+      icon: Hammer,
+      items: [
+        {
+          title: "Tous les materiaux",
+          url: "/materiaux",
+        },
+        {
+          title: "Ajouter un materiau",
+          url: "#",
+        },
+       
       ],
     },
     {

@@ -88,7 +88,7 @@ export default function DevisTable() {
                   <DropdownMenu>
                       <DropdownMenuTrigger><span className="text-xl">...</span></DropdownMenuTrigger>
                       <DropdownMenuContent>
-                          <DropdownMenuLabel>Action</DropdownMenuLabel>
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => onModifier(devis.id)}>
                         Modifier

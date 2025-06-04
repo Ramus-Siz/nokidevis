@@ -16,12 +16,10 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "./ui/separator";
-// import { Separator } from "@radix-ui/react-separator";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Pages où l'on ne veut pas de sidebar
   const isLogin = pathname === "/login";
 
   if (isLogin) {
@@ -42,11 +40,11 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">Building Your Application</BreadcrumbLink>
+                  <BreadcrumbLink href="#">Gérez vos devis en toute securité </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                  <BreadcrumbPage>Générez aussi vos factures</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
