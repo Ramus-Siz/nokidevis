@@ -30,6 +30,7 @@ export default function DashboardPage() {
               count={42}
               description="Total validés ce mois"
               icon={FileText}
+              color="absolute top-4 right-4 text-green-400"
             />
           </div>
         </Link>
@@ -41,6 +42,7 @@ export default function DashboardPage() {
               count={44}
               description="Total Général"
               icon={Users}
+              color="absolute top-4 right-4 text-gray-400"
             />
           </div>
         </Link>
@@ -52,6 +54,7 @@ export default function DashboardPage() {
               count={57}
               description="Total créé ce mois"
               icon={FileText}
+              color="absolute top-4 right-4 text-gray-400"
             />
           </div>
         </Link>

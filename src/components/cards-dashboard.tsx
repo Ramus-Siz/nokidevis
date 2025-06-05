@@ -5,7 +5,8 @@ interface StatCardProps {
   title: string;
   count: number;
   description: string;
-  icon?: LucideIcon; // Type pour une icône Lucide
+  icon?: LucideIcon;
+  color:string
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -13,11 +14,12 @@ export const StatCard: React.FC<StatCardProps> = ({
   count,
   description,
   icon: Icon,
+  color,
 }) => {
   return (
     <div className="">
       {Icon && (
-        <div className="absolute top-4 right-4 text-gray-400">
+        <div className= {color}>
           <Icon size={20} />
         </div>
       )}
