@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation"; // ← Next.js 13+ App Router
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Eye } from "lucide-react";
+import { Eye, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
+import { toast } from "sonner";
 
 type Client = {
   id: string;
@@ -45,6 +47,14 @@ export default function ClientsTable() {
     router.push(`/clients/${id}`);
   };
 
+  const handleDelete = async (id: string) => {
+  console.log("Suppression du client avec l'id :", id)
+  toast.success("Devis supprimé avec succès");
+  await new Promise((r) => setTimeout(r, 500))
+}
+
+
+
   return (
     <div className="space-y-4">
       <div className="flex justify-start">
@@ -77,14 +87,22 @@ export default function ClientsTable() {
                 <TableCell>{client.name}</TableCell>
                 <TableCell>{client.devisValides}</TableCell>
                 <TableCell>{client.devisEnCours}</TableCell>
-                <TableCell className="text-right">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => onViewClient(client.id)}
-                  >
-                    <Eye className="h-5 w-5 text-muted-foreground hover:text-primary" />
-                  </Button>
+                
+                <TableCell className="text-right justify-end flex gap-2">
+                  
+                    <Button size="icon" variant="ghost" onClick={() => router.push(`/clients/${client.id}`)}>
+                        <Eye className="w-4 h-4" />
+                    </Button>
+                    <ConfirmDeleteDialog 
+                    onConfirm={() => handleDelete(client.id)}
+                    trigger={
+                    <Button size="icon" variant="ghost">
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                    </Button>
+                    }
+                    title="Supprimer le client"
+                    description="Êtes-vous sûr de vouloir supprimer ce client ? Cette action est irréversible."
+                />
                 </TableCell>
               </TableRow>
             ))
