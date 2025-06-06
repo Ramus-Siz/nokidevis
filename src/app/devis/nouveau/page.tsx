@@ -9,6 +9,9 @@ import { Plus, Trash2, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { ComboboxClient } from "@/components/ComboboxClient" 
+import { ComboboxMateriau } from "@/components/ComboboxMateriau"
+
 import {
   Select,
   SelectTrigger,
@@ -21,6 +24,8 @@ import { format } from "date-fns"
 const clients = [
   { id: "1", name: "Entreprise Alpha" },
   { id: "2", name: "Client Bêta" },
+  { id: "3", name: "Client Gama" },
+  { id: "4", name: "Client Delta" },
 ]
 
 const materiaux = [
@@ -81,18 +86,15 @@ export default function NouveauDevisPage() {
         {/* Sélection du client */}
         <div>
           <Label className="mb-2">Client</Label>
-          <Select onValueChange={(val) => setValue("clientId", val)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Choisir un client" />
-            </SelectTrigger>
-            <SelectContent>
-              {clients.map((client) => (
-                <SelectItem key={client.id} value={client.id}>
-                  {client.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <ComboboxClient
+  clients={clients}
+  value={watch("clientId")}
+  onChange={(val) => setValue("clientId", val)}
+  placeholder="Choisir un client"
+/>
+{errors.clientId && (
+  <p className="text-sm text-red-500 mt-1">{errors.clientId.message}</p>
+)}
           {errors.clientId && (
             <p className="text-sm text-red-500 mt-1">{errors.clientId.message}</p>
           )}
@@ -116,22 +118,13 @@ export default function NouveauDevisPage() {
             <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
               <div>
                 <Label className="mb-2">Matériau</Label>
-                <Select
-                  onValueChange={(val) => setValue(`lignesElements.${index}.materiauId`, val)}
-                  defaultValue={field.materiauId}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {materiaux.map((m) => (
-                      <SelectItem key={m.id} value={m.id}>
-                        {m.name} - {m.prix} $
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <ComboboxMateriau
+                  value={watch(`lignesElements.${index}.materiauId`)}
+                  onChange={(val) => setValue(`lignesElements.${index}.materiauId`, val)}
+                  materiaux={materiaux}
+                />
               </div>
+
 
               <div>
                 <Label className="mb-2">Quantité</Label>
