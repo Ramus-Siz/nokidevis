@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-export default function DevisPage() {
+export default function DevisValidesPage() {
   return (
     <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min p-8">
       <div className="mb-12">
