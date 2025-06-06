@@ -17,15 +17,23 @@ import { MoreVertical } from "lucide-react";
 import { Input } from "@/components/ui/input"; // Import Input component
 
 const ITEMS_PER_PAGE = 7;
+type DevisTableProps = {
+  onlyValidated?: boolean;
+};
 
-export default function DevisTable() {
+export default function DevisTable({ onlyValidated = false }: DevisTableProps) {
   const [page, setPage] = useState(1);
   const [filterTerm, setFilterTerm] = useState(""); 
 
-  const filteredDevis = devisList.filter(devis =>
+  
+
+ const filteredDevis = devisList
+  .filter(devis =>
     devis.client.toLowerCase().includes(filterTerm.toLowerCase()) ||
     devis.id.toLowerCase().includes(filterTerm.toLowerCase())
-  );
+  )
+  .filter(devis => (onlyValidated ? devis.status === "validé" : true));
+
 
   const totalPages = Math.ceil(filteredDevis.length / ITEMS_PER_PAGE); 
   const paginated = filteredDevis.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE); 

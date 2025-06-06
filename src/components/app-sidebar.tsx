@@ -99,7 +99,7 @@ const data = {
         },
          {
           title: "Devis validés",
-          url: "#",
+          url: "/devis/valides",
         },
         
       ],
