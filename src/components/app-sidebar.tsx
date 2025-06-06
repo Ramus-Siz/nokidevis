@@ -95,7 +95,7 @@ const data = {
         },
         {
           title: "Ajouter un devis",
-          url: "#",
+          url: "/devis/nouveau",
         },
          {
           title: "Devis validés",

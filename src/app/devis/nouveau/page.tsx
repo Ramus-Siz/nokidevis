@@ -16,8 +16,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select"
-
-
 import { format } from "date-fns"
 
 const clients = [
@@ -33,7 +31,7 @@ const materiaux = [
 
 const devisSchema = z.object({
   clientId: z.string().min(1, "Client requis"),
-  lignes: z.array(
+  lignesElements: z.array(
     z.object({
       materiauId: z.string().min(1),
       quantite: z.coerce.number().min(1),
@@ -49,32 +47,34 @@ export default function NouveauDevisPage() {
     resolver: zodResolver(devisSchema),
     defaultValues: {
       clientId: "",
-      lignes: [{ materiauId: "", quantite: 1 }],
+      lignesElements: [{ materiauId: "", quantite: 1 }],
     },
   })
 
   const { register, control, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = form
-  const { fields, append, remove } = useFieldArray({ control, name: "lignes" })
+  const { fields, append, remove } = useFieldArray({ control, name: "lignesElements" })
 
-  const lignes = watch("lignes")
+  const lignesElements = watch("lignesElements")
 
   const getPrixMateriau = (id: string) =>
     materiaux.find((m) => m.id === id)?.prix ?? 0
 
-  const total = lignes.reduce((acc, l) => {
+  const total = lignesElements.reduce((acc, l) => {
     const prix = getPrixMateriau(l.materiauId)
     return acc + prix * l.quantite
   }, 0)
 
   const onSubmit = async (data: DevisFormValues) => {
     console.log("Envoi du devis :", data)
+    console.log("Type of data :", typeof(data))
+
     await new Promise((r) => setTimeout(r, 1000))
     router.push("/devis")
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-10 space-y-6">
-      <h1 className="text-2xl font-bold">Créer un nouveau devis</h1>
+    <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min p-8">
+      <h1 className="text-2xl font-bold pb-8">Créer un nouveau devis</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 
@@ -117,7 +117,7 @@ export default function NouveauDevisPage() {
               <div>
                 <Label className="mb-2">Matériau</Label>
                 <Select
-                  onValueChange={(val) => setValue(`lignes.${index}.materiauId`, val)}
+                  onValueChange={(val) => setValue(`lignesElements.${index}.materiauId`, val)}
                   defaultValue={field.materiauId}
                 >
                   <SelectTrigger>
@@ -126,7 +126,7 @@ export default function NouveauDevisPage() {
                   <SelectContent>
                     {materiaux.map((m) => (
                       <SelectItem key={m.id} value={m.id}>
-                        {m.name} - {m.prix} €
+                        {m.name} - {m.prix} $
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -137,14 +137,14 @@ export default function NouveauDevisPage() {
                 <Label className="mb-2">Quantité</Label>
                 <Input
                   type="number"
-                  {...register(`lignes.${index}.quantite`)}
+                  {...register(`lignesElements.${index}.quantite`)}
                 />
               </div>
 
               <div>
                 <Label className="mb-2">Prix unitaire</Label>
                 <Input
-                  value={getPrixMateriau(watch(`lignes.${index}.materiauId`))}
+                  value={getPrixMateriau(watch(`lignesElements.${index}.materiauId`))}
                   readOnly
                 />
               </div>
@@ -162,15 +162,15 @@ export default function NouveauDevisPage() {
             </div>
           ))}
 
-          {errors.lignes && (
-            <p className="text-sm text-red-500">{errors.lignes.message}</p>
+          {errors.lignesElements && (
+            <p className="text-sm text-red-500">{errors.lignesElements.message}</p>
           )}
         </div>
 
         {/* Total et validation */}
         <div className="flex justify-between items-center border-t pt-4">
           <span className="font-semibold text-lg">
-            Total : {total.toFixed(2)} €
+            Total : {total.toFixed(2)} $
           </span>
           <Button type="submit" disabled={isSubmitting}>
             <Save className="w-4 h-4 mr-2" />
