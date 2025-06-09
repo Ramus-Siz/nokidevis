@@ -14,7 +14,9 @@ import { toast } from "sonner"
 
 const clientSchema = z.object({
   name: z.string().min(1, "Nom requis"),
-  prix: z.string().min(1, "Prix requis"),
+  prix: z.coerce.number({
+    invalid_type_error: "Le prix doit être un nombre",
+  }).positive("Le prix doit être positif"),
   boutique: z.string().min(1, "La boutique est requise"),
 })
 
@@ -30,7 +32,7 @@ export default function NouveauMateriauxPage() {
     resolver: zodResolver(clientSchema),
     defaultValues: {
       name: "",
-      prix: "",
+      prix: 0,
       boutique: "",
     },
   })
@@ -67,14 +69,16 @@ export default function NouveauMateriauxPage() {
           )}
         </div>
         <div>
-            <Label htmlFor="prix" className="mb-2">Prix en $</Label>
-            <Input
-            {...register("prix")}/>
-             {errors.prix && (
-            <p className="text-sm text-red-500 mt-1">{errors.prix.message}</p>
-          )}
-
-        </div>
+  <Label htmlFor="prix" className="mb-2">Prix en $</Label>
+  <Input
+    type="number"
+    step="0.01"
+    {...register("prix")}
+  />
+  {errors.prix && (
+    <p className="text-sm text-red-500 mt-1">{errors.prix.message}</p>
+  )}
+</div>
         <div>
           <Label htmlFor="boutique" className="mb-2">Boutique</Label>
           <Input id="boutique"  placeholder="Ex: bokasa numero 3, maison HDK"{...register("boutique")} />
