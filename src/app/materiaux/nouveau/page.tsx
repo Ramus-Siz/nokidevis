@@ -13,8 +13,8 @@ import { ArrowLeft } from "lucide-react"
 
 const clientSchema = z.object({
   name: z.string().min(1, "Nom requis"),
-  prix: z.string().optional(),
-  boutique: z.string().optional(),
+  prix: z.string().min(1, "Prix requis"),
+  boutique: z.string().min(1, "La boutique est requise"),
 })
 
 type ClientFormValues = z.infer<typeof clientSchema>
@@ -40,14 +40,14 @@ export default function NouveauMateriauxPage() {
     // Simulation d'enregistrement
     await new Promise((r) => setTimeout(r, 1000))
 
-    router.push("/materiaux")
+    router.push("/materiaux/nouveau")
   }
 
   return (
     <div className="bg-muted/40 min-h-[100vh] p-8 rounded-xl md:min-h-min">
     <div className="flex justify-between ">
       <h1 className="text-2xl font-bold pb-8">Créer un nouveau Materiaux</h1>
-      <Link href="/clients">
+      <Link href="/materiaux">
           <Button variant="outline" size="sm" className="flex items-center gap-2">
             <ArrowLeft className="w-4 h-4" />
             Tous les Materiaux
@@ -68,14 +68,17 @@ export default function NouveauMateriauxPage() {
             <Label htmlFor="prix" className="mb-2">Prix en $</Label>
             <Input
             {...register("prix")}/>
-             {errors.name && (
-            <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
+             {errors.prix && (
+            <p className="text-sm text-red-500 mt-1">{errors.prix.message}</p>
           )}
 
         </div>
         <div>
           <Label htmlFor="boutique" className="mb-2">Boutique</Label>
           <Input id="boutique"  placeholder="Ex: bokasa numero 3, maison HDK"{...register("boutique")} />
+          {errors.boutique && (
+            <p className="text-sm text-red-500 mt-1">{errors.boutique.message}</p>
+          )}
           
         </div>
 
