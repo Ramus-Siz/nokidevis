@@ -120,24 +120,5 @@ export default function MateriauxTable() {
       </div>
     </div>
   );
-  // return (
-  //   <Table>
-  //     <TableHeader>
-  //       <TableRow>
-  //         <TableHead>ID</TableHead>
-  //         <TableHead>Nom</TableHead>
-  //         <TableHead>Prix ($)</TableHead>
-  //       </TableRow>
-  //     </TableHeader>
-  //     <TableBody>
-  //       {materiaux.map((m) => (
-  //         <TableRow key={m.id}>
-  //           <TableCell>{m.id}</TableCell>
-  //           <TableCell>{m.nom}</TableCell>
-  //           <TableCell>{m.prix.toLocaleString()} $</TableCell>
-  //         </TableRow>
-  //       ))}
-  //     </TableBody>
-  //   </Table>
-  // );
+ 
 }

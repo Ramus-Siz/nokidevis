@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
 import { toast } from "sonner";
@@ -92,6 +92,9 @@ export default function ClientsTable() {
                   
                     <Button size="icon" variant="ghost" onClick={() => router.push(`/clients/${client.id}`)}>
                         <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={() => router.push(`/materiaux/edit/${client.id}`)}>
+                    <Pencil className="w-4 h-4" />
                     </Button>
                     <ConfirmDeleteDialog 
                     onConfirm={() => handleDelete(client.id)}
