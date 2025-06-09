@@ -10,6 +10,7 @@ import { Save } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { toast } from "sonner"
 
 const clientSchema = z.object({
   name: z.string().min(1, "Nom requis"),
@@ -37,7 +38,8 @@ export default function NouveauMateriauxPage() {
   const onSubmit = async (data: ClientFormValues) => {
     console.log("Nouveau materiaux :", data)
 
-    // Simulation d'enregistrement
+    toast.success("Materiaux supprimé avec succès");
+    
     await new Promise((r) => setTimeout(r, 1000))
 
     router.push("/materiaux/nouveau")

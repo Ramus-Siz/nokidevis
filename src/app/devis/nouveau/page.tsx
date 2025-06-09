@@ -20,6 +20,7 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 import { format } from "date-fns"
+import { toast } from "sonner"
 
 const clients = [
   { id: "1", name: "Entreprise Alpha" },
@@ -72,6 +73,8 @@ export default function NouveauDevisPage() {
   const onSubmit = async (data: DevisFormValues) => {
     console.log("Envoi du devis :", data)
     console.log("Type of data :", typeof(data))
+    toast.success("Materiaux supprimé avec succès");
+
 
     await new Promise((r) => setTimeout(r, 1000))
     router.push("/devis")
