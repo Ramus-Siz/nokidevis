@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { toast } from "sonner";
 import { Button } from "./ui/button";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
 import { Input } from "./ui/input";
 
@@ -60,7 +60,7 @@ export default function MateriauxTable() {
             <TableHead>ID</TableHead>
             <TableHead>Nom du Materiaux</TableHead>
             <TableHead>Prix </TableHead>
-            <TableHead className="text-right">Voir</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -75,6 +75,9 @@ export default function MateriauxTable() {
                   
                     <Button size="icon" variant="ghost" onClick={() => router.push(`/materiaux/${element.id}`)}>
                         <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={() => router.push(`/materiaux/edit/${element.id}`)}>
+                    <Pencil className="w-4 h-4" />
                     </Button>
                     <ConfirmDeleteDialog 
                     onConfirm={() => handleDelete(element.id)}
