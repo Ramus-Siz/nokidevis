@@ -87,14 +87,14 @@ export default function NouveauDevisPage() {
         <div>
           <Label className="mb-2">Client</Label>
           <ComboboxClient
-  clients={clients}
-  value={watch("clientId")}
-  onChange={(val) => setValue("clientId", val)}
-  placeholder="Choisir un client"
-/>
-{errors.clientId && (
-  <p className="text-sm text-red-500 mt-1">{errors.clientId.message}</p>
-)}
+          clients={clients}
+          value={watch("clientId")}
+          onChange={(val) => setValue("clientId", val)}
+          placeholder="Choisir un client"
+        />
+        {errors.clientId && (
+          <p className="text-sm text-red-500 mt-1">{errors.clientId.message}</p>
+        )}
           {errors.clientId && (
             <p className="text-sm text-red-500 mt-1">{errors.clientId.message}</p>
           )}
