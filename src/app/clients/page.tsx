@@ -1,4 +1,4 @@
-import ClientsTable from "@/components/clientsTable";
+import ClientsTable from "@/components/clients/clientsTable";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
