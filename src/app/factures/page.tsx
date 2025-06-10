@@ -1,9 +1,9 @@
-import DevisTable from "@/components/devis/devisTable";
+import FactureTable from "@/components/factures/facturesTable";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-export default function DevisValidesPage() {
+export default function FacturePage() {
   return (
     <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min p-8">
       <div className="mb-12">
@@ -15,8 +15,8 @@ export default function DevisValidesPage() {
         </Link>
       </div>
 
-      <h1 className="text-xl font-bold mb-4">Devis validés</h1>
-      <DevisTable onlyValidated/>
+      <h1 className="text-xl font-bold mb-4">Mes Factures</h1>
+      <FactureTable />
     </div>
   );
 }

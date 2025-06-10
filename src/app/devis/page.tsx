@@ -1,4 +1,4 @@
-import DevisTable from "@/components/devisTable";
+import DevisTable from "@/components/devis/devisTable";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";

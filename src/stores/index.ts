@@ -1,4 +1,12 @@
 // src/stores/index.ts
-export { default as useClientStore } from './clientStore';
-export { default as useMaterialStore } from './materialStore';
-export { default as useQuotationStore } from './quotationStore';
+import useClientStore from './clientStore';
+import useMaterialStore from './materialStore';
+import useQuotationStore from './quotationStore';
+import useInvoiceStore from './invoiceStore'; // Ajoutez cette ligne
+
+export {
+  useClientStore,
+  useMaterialStore,
+  useQuotationStore,
+  useInvoiceStore, // Exportez le nouveau store
+};

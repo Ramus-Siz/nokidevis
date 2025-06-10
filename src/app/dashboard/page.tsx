@@ -17,7 +17,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import DevisTable from "@/components/devisTable";
+import DevisTable from "@/components/devis/devisTable";
 
 export default function DashboardPage() {
   return (

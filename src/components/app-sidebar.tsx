@@ -112,7 +112,7 @@ const data = {
       items: [
         {
           title: "Toutes les factures",
-          url: "#",
+          url: "/factures",
         },
         {
           title: "Générer une facture",

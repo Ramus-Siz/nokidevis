@@ -21,8 +21,49 @@ export interface QuotationItem {
   price_per_unit: number; // Peut différer du prix du matériau, ex: remise
 }
 
-// Définition des statuts possibles
-export type QuotationStatus = 'brouillon' | 'en cours' | 'validé';
+// src/types/index.ts (Ajoutez ces interfaces)
+
+// Statuts possibles pour une facture
+export type InvoiceStatus = 'émise' | 'payée' | 'partiellement payée' | 'annulée' | 'en retard';
+
+// Interface pour un élément de facture (similaire à QuotationItem)
+export interface InvoiceItem {
+  material_id: string; // ID du matériau
+  quantity: number;    // Quantité du matériau
+  price_per_unit: number; // Prix unitaire au moment de la facturation
+  total_price: number; // Prix total pour cette ligne (quantity * price_per_unit)
+}
+
+// Interface pour une facture
+export interface Invoice {
+  id: string;         // ID unique de la facture (ex: INV-001)
+  quotation_id: string; // ID du devis à partir duquel la facture a été générée
+  client_id: string;  // ID du client associé à la facture
+  date: string;       // Date d'émission de la facture (format YYYY-MM-DD)
+  items: InvoiceItem[]; // Liste des éléments de la facture
+  total: number;      // Total de la facture
+  status: InvoiceStatus; // Statut de la facture (émise, payée, etc.)
+  // Vous pourriez ajouter d'autres champs comme:
+  // payment_date?: string; // Date de paiement
+  // due_date?: string;     // Date d'échéance
+  // notes?: string;        // Notes additionnelles
+}
+
+// Interface pour le store des factures
+export interface InvoiceStore {
+  invoices: Invoice[];
+  addInvoice: (newInvoice: Omit<Invoice, 'id' | 'total' | 'status'> & { total: number; status?: InvoiceStatus }) => void; // Total calculé à l'avance
+  getInvoiceById: (id: string) => Invoice | undefined;
+  updateInvoice: (updatedInvoice: Invoice) => void;
+  deleteInvoice: (id: string) => void;
+  updateInvoiceStatus: (id: string, newStatus: InvoiceStatus) => void;
+  // Vous pourriez ajouter une fonction pour calculer le total si nécessaire
+  // calculateInvoiceTotal: (items: InvoiceItem[]) => number;
+}
+
+
+export type QuotationStatus = 'brouillon' | 'en cours' | 'validé' | 'facturé'; 
+
 
 export interface Quotation {
   id: string;

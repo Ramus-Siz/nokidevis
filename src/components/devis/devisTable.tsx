@@ -24,11 +24,10 @@ import {
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
+import { ConfirmDeleteDialog } from "../ConfirmDeleteDialog";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-// Importez les composants Dialog de shadcn/ui
 import {
   Dialog,
   DialogContent,
@@ -37,11 +36,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-// Importez le nouveau formulaire d'édition
-import QuotationEditForm from "@/components/forms/editForm"; 
+import QuotationEditForm from "@/components/devis/forms/editForm";
+import InvoiceGenerationDialog from "@/components/devis/InvoiceGenerationDialog"; // Importez le nouveau composant
 
-// Importez vos stores Zustand et vos types
-import { useQuotationStore, useClientStore } from "@/stores";
+import { useQuotationStore, useClientStore, useInvoiceStore } from "@/stores"; // Importez useInvoiceStore
 import type { Quotation, QuotationStatus } from "@/types";
 
 const ITEMS_PER_PAGE = 7;
@@ -57,16 +55,19 @@ export default function DevisTable({ onlyValidated = false }: DevisTableProps) {
   const [selectedDevisId, setSelectedDevisId] = useState<string | null>(null);
   const router = useRouter();
 
-  // --- États pour le modal d'édition ---
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingQuotation, setEditingQuotation] = useState<Quotation | null>(null);
-  // --- FIN États pour le modal d'édition ---
+
+  // --- États pour le modal de génération de facture ---
+  const [isInvoiceGenerationDialogOpen, setIsInvoiceGenerationDialogOpen] = useState(false);
+  const [quotationToInvoice, setQuotationToInvoice] = useState<Quotation | null>(null);
+  // --- FIN États pour le modal de génération de facture ---
 
   const quotations = useQuotationStore((state) => state.quotations);
   const deleteQuotation = useQuotationStore((state) => state.deleteQuotation);
   const updateQuotationStatus = useQuotationStore((state) => state.updateQuotationStatus);
   const getClientById = useClientStore((state) => state.getClientById);
-  const getQuotationById = useQuotationStore((state) => state.getQuotationById); // Pour récupérer le devis à éditer
+  const getQuotationById = useQuotationStore((state) => state.getQuotationById);
 
   const filteredDevis = useMemo(() => {
     return quotations
@@ -79,8 +80,17 @@ export default function DevisTable({ onlyValidated = false }: DevisTableProps) {
           devis.id.toLowerCase().includes(filterTerm.toLowerCase())
         );
       })
-      .filter((devis) => (onlyValidated ? devis.status === "validé" : true));
+      // Ne pas filtrer les devis "facturés" si 'onlyValidated' est vrai pour l'affichage dans la table
+      // Ou ajustez la logique si "validé" et "facturé" doivent être considérés comme validés
+      .filter((devis) => {
+        if (onlyValidated) {
+          // Si on veut seulement les validés, on inclut 'validé' et 'facturé'
+          return devis.status === "validé" || devis.status === "facturé";
+        }
+        return true;
+      });
   }, [quotations, filterTerm, onlyValidated, getClientById]);
+
 
   const totalPages = Math.ceil(filteredDevis.length / ITEMS_PER_PAGE);
   const paginated = useMemo(() => {
@@ -90,7 +100,6 @@ export default function DevisTable({ onlyValidated = false }: DevisTableProps) {
     );
   }, [filteredDevis, page]);
 
-  // Modifiez cette fonction pour ouvrir le modal
   const onModifier = (id: string) => {
     const devisToEdit = getQuotationById(id);
     if (devisToEdit) {
@@ -102,15 +111,14 @@ export default function DevisTable({ onlyValidated = false }: DevisTableProps) {
   };
 
   const handleEditFormSave = () => {
-    setIsEditDialogOpen(false); // Ferme le modal
-    setEditingQuotation(null); // Réinitialise le devis en édition
-  };
-
-  const handleEditFormCancel = () => {
-    setIsEditDialogOpen(false); // Ferme le modal sans enregistrer
+    setIsEditDialogOpen(false);
     setEditingQuotation(null);
   };
 
+  const handleEditFormCancel = () => {
+    setIsEditDialogOpen(false);
+    setEditingQuotation(null);
+  };
 
   const onSupprimer = async (id: string) => {
     deleteQuotation(id);
@@ -125,9 +133,15 @@ export default function DevisTable({ onlyValidated = false }: DevisTableProps) {
     setOpenConfirmDialog(false);
   };
 
+  // Modifiez cette fonction pour ouvrir le modal de génération de facture
   const onGenererFacture = (id: string) => {
-    updateQuotationStatus(id, 'validé');
-    toast.info(`Génération de facture pour le devis ${id}... (Statut mis à "validé")`);
+    const devisToInvoice = getQuotationById(id);
+    if (devisToInvoice) {
+      setQuotationToInvoice(devisToInvoice);
+      setIsInvoiceGenerationDialogOpen(true);
+    } else {
+      toast.error("Devis non trouvé pour générer la facture.");
+    }
   };
 
   const handleChangeStatus = (id: string, newStatus: QuotationStatus) => {
@@ -143,12 +157,15 @@ export default function DevisTable({ onlyValidated = false }: DevisTableProps) {
         return "warning";
       case "brouillon":
         return "secondary";
+      case "facturé": // Ajoutez le nouveau statut "facturé"
+        return "success"; // Vous pouvez définir un variant 'success' dans shadcn/ui
       default:
         return "destructive";
     }
   };
 
-  const availableStatuses: QuotationStatus[] = ["brouillon", "en cours", "validé"];
+  // Mettez à jour les statuts disponibles si "facturé" peut être choisi manuellement
+  const availableStatuses: QuotationStatus[] = ["brouillon", "en cours", "validé", "facturé"];
 
   return (
     <div className="space-y-4">
@@ -221,20 +238,29 @@ export default function DevisTable({ onlyValidated = false }: DevisTableProps) {
                           </DropdownMenuSubContent>
                         </DropdownMenuSub>
 
-                        {devis.status === "validé" ? (
+                        {/* Condition pour la génération de facture : seulement si devis est "validé" et pas déjà "facturé" */}
+                        {devis.status === "validé" && (
                           <DropdownMenuItem
-                            onClick={() => onGenererFacture(devis.id)}
-                          >
-                            Générer la facture
-                          </DropdownMenuItem>
-                        ) : (
-                          <DropdownMenuItem
-                            disabled
                             onClick={() => onGenererFacture(devis.id)}
                           >
                             Générer la facture
                           </DropdownMenuItem>
                         )}
+                        {/* Option "Voir la facture" si le devis est "facturé" */}
+                        {devis.status === "facturé" && (
+                           <DropdownMenuItem
+                            onClick={() => router.push(`/factures/${devis.id}`)} // Assurez-vous d'avoir cette route
+                           >
+                            Voir la facture
+                           </DropdownMenuItem>
+                        )}
+                        {/* Disable générer la facture si c'est 'facturé' ou autre statut non 'validé' */}
+                        {devis.status !== "validé" && devis.status !== "facturé" && (
+                            <DropdownMenuItem disabled>
+                                Générer la facture
+                            </DropdownMenuItem>
+                        )}
+
                         <DropdownMenuItem
                           onClick={() => {
                             setSelectedDevisId(devis.id);
@@ -285,7 +311,6 @@ export default function DevisTable({ onlyValidated = false }: DevisTableProps) {
         description="Voulez-vous vraiment supprimer ce devis ? Cette action est irréversible."
       />
 
-      {/* --- Le Modal d'édition --- */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -303,7 +328,16 @@ export default function DevisTable({ onlyValidated = false }: DevisTableProps) {
           )}
         </DialogContent>
       </Dialog>
-      {/* --- Fin du Modal d'édition --- */}
+
+      {/* --- Le Modal de génération de facture --- */}
+      {quotationToInvoice && ( // Rendre le composant seulement si un devis est sélectionné
+        <InvoiceGenerationDialog
+          open={isInvoiceGenerationDialogOpen}
+          onOpenChange={setIsInvoiceGenerationDialogOpen}
+          quotation={quotationToInvoice}
+        />
+      )}
+      {/* --- Fin du Modal de génération de facture --- */}
     </div>
   );
 }
