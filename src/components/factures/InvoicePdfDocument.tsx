@@ -20,8 +20,8 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    padding: 40, // Augmenté le padding pour plus d'espace
-    fontFamily: 'Helvetica', // Ou 'Roboto' si vous l'avez enregistré
+    padding: 40, // 
+    fontFamily: 'Helvetica',
     fontSize: 10,
   },
   // Section en-tête avec logo et date
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 80, // Taille du logo
     height: 80,
-    objectFit: 'contain', // Pour s'assurer que le logo s'adapte sans déformation
+    objectFit: 'contain', 
   },
   dateText: {
     fontSize: 12,

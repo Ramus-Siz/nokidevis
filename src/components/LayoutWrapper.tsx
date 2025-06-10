@@ -21,8 +21,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const pathname = usePathname();
 
   const isLogin = pathname === "/login";
+  const isRegister = pathname === "/register";
 
-  if (isLogin) {
+
+  if (isLogin || isRegister) {
     return <div className="min-h-screen bg-muted">{children}</div>;
   }
 

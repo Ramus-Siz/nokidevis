@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, Github, Mail,  } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -73,8 +74,10 @@ export default function LoginPage() {
             </Button>
             <div className="flex items-center justify-between space-x-2">
               <span className="text-sm text-muted-foreground">Nouveau sur Nokidevis ?</span>
-              <Button variant="link" className="text-sm"> 
-                S'inscrire
+              <Button variant="link" asChild>
+                <Link href="/register" className="text-sm">
+                  S'inscrire
+                </Link>
               </Button>
             </div>
           </form>
