@@ -1,59 +1,68 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
+import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog"; 
 import { toast } from "sonner";
 
-type Client = {
-  id: string;
-  name: string;
-  devisValides: number;
-  devisEnCours: number;
-};
+// Import your Zustand stores and types
+import { useClientStore, useQuotationStore } from "@/stores"; 
+import type { Client, QuotationStatus } from "@/types"; 
 
 const ITEMS_PER_PAGE = 7;
-
-const clients: Client[] = [
-  { id: "1", name: "Entreprise Alpha", devisValides: 5, devisEnCours: 2 },
-  { id: "2", name: "Client Bêta", devisValides: 3, devisEnCours: 1 },
-  { id: "3", name: "Société Gamma", devisValides: 10, devisEnCours: 0 },
-  { id: "4", name: "Nom Exemple", devisValides: 1, devisEnCours: 4 },
-  { id: "5", name: "Test SARL", devisValides: 0, devisEnCours: 2 },
-  { id: "6", name: "Agence Demo", devisValides: 8, devisEnCours: 3 },
-  { id: "7", name: "Client 007", devisValides: 2, devisEnCours: 5 },
-  { id: "8", name: "Global Tech", devisValides: 6, devisEnCours: 1 },
-];
 
 export default function ClientsTable() {
   const [page, setPage] = useState(1);
   const [filterTerm, setFilterTerm] = useState("");
   const router = useRouter();
 
-  const filteredClients = clients.filter(
-    (client) =>
-      client.name.toLowerCase().includes(filterTerm.toLowerCase()) ||
-      client.id.toLowerCase().includes(filterTerm.toLowerCase())
-  );
+  const clients = useClientStore((state) => state.clients);
+  const deleteClient = useClientStore((state) => state.deleteClient);
+
+  // Get quotations to calculate devis counts (if needed to display in table)
+  const quotations = useQuotationStore((state) => state.quotations);
+
+  // Helper function to calculate devis counts for a client
+  const getClientDevisCounts = (clientId: string) => {
+    const clientQuotations = quotations.filter(q => q.client_id === clientId);
+    const devisValides = clientQuotations.filter(q => q.status === 'validé').length;
+    const devisEnCours = clientQuotations.filter(q => q.status === 'en cours' || q.status === 'brouillon').length; // Or just 'en cours'
+    return { devisValides, devisEnCours };
+  };
+  // --- FIN INTEGRATION ZUSTAND ---
+
+  const filteredClients = useMemo(() => {
+    return clients.filter(
+      (client) =>
+        client.name.toLowerCase().includes(filterTerm.toLowerCase()) ||
+        client.id.toLowerCase().includes(filterTerm.toLowerCase())
+    );
+  }, [clients, filterTerm]); // Recalculate only when clients or filterTerm changes
 
   const totalPages = Math.ceil(filteredClients.length / ITEMS_PER_PAGE);
-  const paginated = filteredClients.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const paginatedClients = useMemo(() => {
+    return filteredClients.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  }, [filteredClients, page]); // Recalculate only when filteredClients or page changes
 
   const onViewClient = (id: string) => {
     router.push(`/clients/${id}`);
   };
 
+  const handleEditClient = (id: string) => {
+    router.push(`/clients/edit/${id}`);
+  };
+
   const handleDelete = async (id: string) => {
-  console.log("Suppression du client avec l'id :", id)
-  toast.success("Devis supprimé avec succès");
-  await new Promise((r) => setTimeout(r, 500))
-}
-
-
+    console.log("Suppression du client avec l'id :", id);
+    // Call the deleteClient function from the Zustand store
+    deleteClient(id);
+    toast.success("Client supprimé avec succès !");
+    // No need for a setTimeout here unless you have a specific UI delay
+  };
 
   return (
     <div className="space-y-4">
@@ -63,7 +72,7 @@ export default function ClientsTable() {
           value={filterTerm}
           onChange={(e) => {
             setFilterTerm(e.target.value);
-            setPage(1);
+            setPage(1); // Reset page to 1 when filter changes
           }}
           className="max-w-sm"
         />
@@ -76,39 +85,43 @@ export default function ClientsTable() {
             <TableHead>Nom du client</TableHead>
             <TableHead>Devis validés</TableHead>
             <TableHead>Devis en cours</TableHead>
-            <TableHead className="text-right">Voir</TableHead>
+            <TableHead className="text-right">Actions</TableHead> {/* Renommé "Voir" en "Actions" */}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {paginated.length > 0 ? (
-            paginated.map((client) => (
-              <TableRow key={client.id}>
-                <TableCell>{client.id}</TableCell>
-                <TableCell>{client.name}</TableCell>
-                <TableCell>{client.devisValides}</TableCell>
-                <TableCell>{client.devisEnCours}</TableCell>
-                
-                <TableCell className="text-right justify-end flex gap-2">
+          {paginatedClients.length > 0 ? (
+            paginatedClients.map((client) => {
+              // Calculate devis counts for display
+              const { devisValides, devisEnCours } = getClientDevisCounts(client.id);
+
+              return (
+                <TableRow key={client.id}>
+                  <TableCell>{client.id}</TableCell>
+                  <TableCell>{client.name}</TableCell>
+                  <TableCell>{devisValides}</TableCell> {/* Display calculated counts */}
+                  <TableCell>{devisEnCours}</TableCell> {/* Display calculated counts */}
                   
-                    <Button size="icon" variant="ghost" onClick={() => router.push(`/clients/${client.id}`)}>
-                        <Eye className="w-4 h-4" />
+                  <TableCell className="text-right justify-end flex gap-2">
+                    <Button size="icon" variant="ghost" onClick={() => onViewClient(client.id)}>
+                      <Eye className="w-4 h-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" onClick={() => router.push(`/materiaux/edit/${client.id}`)}>
-                    <Pencil className="w-4 h-4" />
+                    <Button size="icon" variant="ghost" onClick={() => handleEditClient(client.id)}>
+                      <Pencil className="w-4 h-4" />
                     </Button>
                     <ConfirmDeleteDialog 
-                    onConfirm={() => handleDelete(client.id)}
-                    trigger={
-                    <Button size="icon" variant="ghost">
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                    </Button>
-                    }
-                    title="Supprimer le client"
-                    description="Êtes-vous sûr de vouloir supprimer ce client ? Cette action est irréversible."
-                />
-                </TableCell>
-              </TableRow>
-            ))
+                      onConfirm={() => handleDelete(client.id)}
+                      trigger={
+                        <Button size="icon" variant="ghost">
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      }
+                      title="Supprimer le client"
+                      description="Êtes-vous sûr de vouloir supprimer ce client ? Cette action est irréversible et supprimera toutes les données associées." // More precise description
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })
           ) : (
             <TableRow>
               <TableCell colSpan={5} className="h-24 text-center">

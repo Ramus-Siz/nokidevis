@@ -1,0 +1,16 @@
+[
+  {
+    "id": "clt1",
+    "name": "Entreprise Alpha",
+    "contact": "Alice Dupont",
+    "email": "alice@alpha.com",
+    "phone": "0102030405"
+  },
+  {
+    "id": "clt2",
+    "name": "Société Beta",
+    "contact": "Bob Martin",
+    "email": "bob@beta.com",
+    "phone": "0607080910"
+  }
+]

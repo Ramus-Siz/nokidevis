@@ -1,0 +1,33 @@
+[
+  {
+    "id": "dev1",
+    "client_id": "clt1",
+    "date": "2023-11-01",
+    "items": [
+      { "material_id": "mat1", "quantity": 20, "price_per_unit": 3.50 },
+      { "material_id": "mat2", "quantity": 5, "price_per_unit": 12.00 }
+    ],
+    "total": 130.00,
+    "status": "validé"  
+  },
+  {
+    "id": "dev2",
+    "client_id": "clt2",
+    "date": "2023-10-28",
+    "items": [
+      { "material_id": "mat3", "quantity": 10, "price_per_unit": 8.75 }
+    ],
+    "total": 87.50,
+    "status": "en cours" 
+  },
+  {
+    "id": "dev3",
+    "client_id": "clt1",
+    "date": "2023-11-10",
+    "items": [
+      { "material_id": "mat1", "quantity": 5, "price_per_unit": 3.50 }
+    ],
+    "total": 17.50,
+    "status": "brouillon" 
+  }
+]

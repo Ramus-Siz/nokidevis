@@ -1,0 +1,20 @@
+[
+  {
+    "id": "mat1",
+    "name": "Tube PVC 50mm",
+    "unit": "mètre",
+    "price_per_unit": 3.50
+  },
+  {
+    "id": "mat2",
+    "name": "Plaque de Plâtre BA13",
+    "unit": "unité",
+    "price_per_unit": 12.00
+  },
+  {
+    "id": "mat3",
+    "name": "Peinture Acrylique Blanche",
+    "unit": "litre",
+    "price_per_unit": 8.75
+  }
+]

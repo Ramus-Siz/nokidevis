@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react" // Ajoutez useEffect
 import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -9,8 +9,13 @@ import { Plus, Trash2, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ComboboxClient } from "@/components/ComboboxClient" 
+import { ComboboxClient } from "@/components/ComboboxClient"
 import { ComboboxMateriau } from "@/components/ComboboxMateriau"
+
+// Importez vos stores Zustand
+import { useQuotationStore, useClientStore, useMaterialStore } from "@/stores"
+// Importez vos types
+import type { QuotationItem } from "@/types"
 
 import {
   Select,
@@ -22,38 +27,40 @@ import {
 import { format } from "date-fns"
 import { toast } from "sonner"
 
-const clients = [
-  { id: "1", name: "Entreprise Alpha" },
-  { id: "2", name: "Client Bêta" },
-  { id: "3", name: "Client Gama" },
-  { id: "4", name: "Client Delta" },
-]
+// Supprimez les données statiques (elles viendront des stores)
+// const clients = [...]
+// const materiaux = [...]
 
-const materiaux = [
-  { id: "mat-001", name: "Ciment", prix: 25 },
-  { id: "mat-002", name: "Sable", prix: 15 },
-  { id: "mat-003", name: "Brique", prix: 0.5 },
-]
-
+// Schéma de validation Zod mis à jour pour correspondre à QuotationItem
 const devisSchema = z.object({
   clientId: z.string().min(1, "Client requis"),
   lignesElements: z.array(
     z.object({
-      materiauId: z.string().min(1),
-      quantite: z.coerce.number().min(1),
+      materiauId: z.string().min(1, "Matériau requis"),
+      quantite: z.coerce.number().min(1, "Quantité doit être au moins 1"),
+      // Ajout de price_per_unit au schéma car il fait partie de QuotationItem
+      price_per_unit: z.coerce.number().min(0, "Le prix unitaire doit être positif"),
     })
-  ).min(1, "Au moins une ligne requise"),
+  ).min(1, "Au moins une ligne de matériau est requise"),
 })
 
 type DevisFormValues = z.infer<typeof devisSchema>
 
 export default function NouveauDevisPage() {
   const router = useRouter()
+
+  // --- INTÉGRATION ZUSTAND ---
+  const addQuotation = useQuotationStore((state) => state.addQuotation)
+  const allClients = useClientStore((state) => state.clients)
+  const allMaterials = useMaterialStore((state) => state.materials)
+  const getMaterialById = useMaterialStore((state) => state.getMaterialById)
+  // --- FIN INTÉGRATION ZUSTAND ---
+
   const form = useForm<DevisFormValues>({
     resolver: zodResolver(devisSchema),
     defaultValues: {
       clientId: "",
-      lignesElements: [{ materiauId: "", quantite: 1 }],
+      lignesElements: [{ materiauId: "", quantite: 1, price_per_unit: 0 }], // Incluez price_per_unit
     },
   })
 
@@ -62,22 +69,57 @@ export default function NouveauDevisPage() {
 
   const lignesElements = watch("lignesElements")
 
-  const getPrixMateriau = (id: string) =>
-    materiaux.find((m) => m.id === id)?.prix ?? 0
+  // Met à jour le prix unitaire quand le matériau est sélectionné
+  useEffect(() => {
+    lignesElements.forEach((ligne, index) => {
+      if (ligne.materiauId) {
+        const material = getMaterialById(ligne.materiauId);
+        // Mettre à jour price_per_unit seulement si le matériau est trouvé et que le prix n'est pas déjà correct
+        if (material && material.price_per_unit !== ligne.price_per_unit) {
+          setValue(`lignesElements.${index}.price_per_unit`, material.price_per_unit, { shouldValidate: true });
+        }
+      }
+    });
+  }, [lignesElements, getMaterialById, setValue]);
 
+
+  // Utilise les matériaux du store pour obtenir le prix
+  const getPrixMateriau = (id: string) => {
+    return getMaterialById(id)?.price_per_unit ?? 0;
+  }
+
+  // Le calcul du total utilise désormais les prix des lignes d'éléments
   const total = lignesElements.reduce((acc, l) => {
-    const prix = getPrixMateriau(l.materiauId)
-    return acc + prix * l.quantite
+    // Utilisez le price_per_unit stocké dans la ligne, ou le prix du matériau si non défini
+    const price = l.price_per_unit > 0 ? l.price_per_unit : getPrixMateriau(l.materiauId);
+    return acc + price * l.quantite
   }, 0)
 
   const onSubmit = async (data: DevisFormValues) => {
-    console.log("Envoi du devis :", data)
-    console.log("Type of data :", typeof(data))
-    toast.success("Materiaux supprimé avec succès");
+    console.log("Données du formulaire soumises :", data)
 
+    // Préparer les items pour le store (QuotationItem[])
+    const items: QuotationItem[] = data.lignesElements.map(item => ({
+      material_id: item.materiauId,
+      quantity: item.quantite,
+      price_per_unit: item.price_per_unit, // Utilisez le prix unitaire qui a été défini
+    }));
 
-    await new Promise((r) => setTimeout(r, 1000))
-    router.push("/devis")
+    const newQuotationData = {
+      client_id: data.clientId,
+      date: format(new Date(), "yyyy-MM-dd"), // Format de date YYYY-MM-DD
+      items: items,
+      // Le total et le statut ('brouillon') seront calculés/définis par addQuotation dans le store
+    };
+
+    try {
+      addQuotation(newQuotationData); // Ajoutez le devis via le store
+      toast.success("Devis créé avec succès !");
+      router.push("/devis"); // Redirige vers la liste des devis
+    } catch (error) {
+      console.error("Erreur lors de la création du devis:", error);
+      toast.error("Erreur lors de la création du devis.");
+    }
   }
 
   return (
@@ -88,16 +130,13 @@ export default function NouveauDevisPage() {
 
         {/* Sélection du client */}
         <div>
-          <Label className="mb-2">Client</Label>
+          <Label htmlFor="clientId" className="mb-2">Client</Label>
           <ComboboxClient
-          clients={clients}
-          value={watch("clientId")}
-          onChange={(val) => setValue("clientId", val)}
-          placeholder="Choisir un client"
-        />
-        {errors.clientId && (
-          <p className="text-sm text-red-500 mt-1">{errors.clientId.message}</p>
-        )}
+            clients={allClients.map(c => ({ id: c.id, name: c.name }))} // Adaptez si ComboboxClient attend un format spécifique
+            value={watch("clientId")}
+            onChange={(val) => setValue("clientId", val, { shouldValidate: true })}
+            placeholder="Choisir un client"
+          />
           {errors.clientId && (
             <p className="text-sm text-red-500 mt-1">{errors.clientId.message}</p>
           )}
@@ -111,7 +150,7 @@ export default function NouveauDevisPage() {
               type="button"
               variant="ghost"
               size="sm"
-              onClick={() => append({ materiauId: "", quantite: 1 })}
+              onClick={() => append({ materiauId: "", quantite: 1, price_per_unit: 0 })}
             >
               <Plus className="w-4 h-4 mr-1" /> Ajouter une ligne
             </Button>
@@ -120,29 +159,44 @@ export default function NouveauDevisPage() {
           {fields.map((field, index) => (
             <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
               <div>
-                <Label className="mb-2">Matériau</Label>
+                <Label htmlFor={`lignesElements.${index}.materiauId`} className="mb-2">Matériau</Label>
                 <ComboboxMateriau
                   value={watch(`lignesElements.${index}.materiauId`)}
-                  onChange={(val) => setValue(`lignesElements.${index}.materiauId`, val)}
-                  materiaux={materiaux}
+                  onChange={(val) => {
+                    setValue(`lignesElements.${index}.materiauId`, val, { shouldValidate: true });
+                    // Mettre à jour le prix unitaire quand le matériau change dans la ligne
+                    const selectedMaterial = getMaterialById(val);
+                    setValue(`lignesElements.${index}.price_per_unit`, selectedMaterial?.price_per_unit ?? 0, { shouldValidate: true });
+                  }}
+                  materiaux={allMaterials.map(m => ({ id: m.id, name: m.name, prix: m.price_per_unit }))} // Adaptez si ComboboxMateriau attend un format spécifique
                 />
+                {errors.lignesElements?.[index]?.materiauId && (
+                  <p className="text-sm text-red-500 mt-1">{errors.lignesElements[index]?.materiauId?.message}</p>
+                )}
               </div>
 
-
               <div>
-                <Label className="mb-2">Quantité</Label>
+                <Label htmlFor={`lignesElements.${index}.quantite`} className="mb-2">Quantité</Label>
                 <Input
                   type="number"
                   {...register(`lignesElements.${index}.quantite`)}
                 />
+                {errors.lignesElements?.[index]?.quantite && (
+                  <p className="text-sm text-red-500 mt-1">{errors.lignesElements[index]?.quantite?.message}</p>
+                )}
               </div>
 
               <div>
-                <Label className="mb-2">Prix unitaire</Label>
+                <Label htmlFor={`lignesElements.${index}.price_per_unit`} className="mb-2">Prix unitaire</Label>
                 <Input
-                  value={getPrixMateriau(watch(`lignesElements.${index}.materiauId`))}
-                  readOnly
+                  type="number" // Permet d'éditer manuellement si nécessaire, mais est mis à jour automatiquement
+                  value={watch(`lignesElements.${index}.price_per_unit`)}
+                  {...register(`lignesElements.${index}.price_per_unit`, { valueAsNumber: true })} // Enregistre comme nombre
+                  // readOnly // Vous pouvez le laisser en lecture seule si vous ne voulez pas de modification manuelle
                 />
+                 {errors.lignesElements?.[index]?.price_per_unit && (
+                  <p className="text-sm text-red-500 mt-1">{errors.lignesElements[index]?.price_per_unit?.message}</p>
+                )}
               </div>
 
               <div className="flex justify-start">
@@ -158,7 +212,7 @@ export default function NouveauDevisPage() {
             </div>
           ))}
 
-          {errors.lignesElements && (
+          {errors.lignesElements && typeof errors.lignesElements.message === 'string' && (
             <p className="text-sm text-red-500">{errors.lignesElements.message}</p>
           )}
         </div>

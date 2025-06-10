@@ -26,7 +26,7 @@ import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
-import { userStore } from "@/store/user"
+import { userStore } from "@/stores/user"
 import {
   Sidebar,
   SidebarContent,
@@ -72,7 +72,7 @@ const data = {
         },
         {
           title: "Ajouter un client",
-          url: "#",
+          url: "/clients/nouveau",
         },
         
       ],
