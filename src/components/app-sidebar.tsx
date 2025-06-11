@@ -131,7 +131,7 @@ const data = {
         },
         {
           title: "Ajouter un materiau",
-          url: "materiaux/nouveau",
+          url: "/materiaux/nouveau",
         },
        
       ],
