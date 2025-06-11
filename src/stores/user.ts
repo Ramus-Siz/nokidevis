@@ -6,7 +6,7 @@ export const userStore=create((set)=>({
         email:"ramus@grafikirdc.com",
         phone:"+243 970 361 929",
         bio:"",
-        logo:"nokidevis/public/logo.png"
+        logo:"/logo.png"
     },
     updateUser:(newUser:any) => set((state:any) => ({ 
         

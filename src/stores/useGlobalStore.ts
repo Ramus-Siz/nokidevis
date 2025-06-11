@@ -11,8 +11,9 @@ export type Theme = 'light' | 'dark' | 'system';
 export interface UserProfile {
   username: string;
   email: string;
-  phone?: string | " "; // Le numéro de téléphone est optionnel
-  bio?: string | " "; // La biographie est optionnelle
+  phone?: string | ""; // Le numéro de téléphone est optionnel
+  bio?: string | ""; // La biographie est optionnelle
+  logo?:string | ""
 }
 
 // Définit l'interface de l'état global du store
