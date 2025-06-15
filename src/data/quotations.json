@@ -1,33 +1,48 @@
 [
   {
     "id": "dev1",
+    "quotationNumber": "DEV-2023-001",
     "client_id": "clt1",
     "date": "2023-11-01",
+    "expiry_date": "2023-12-01",
     "items": [
       { "material_id": "mat1", "quantity": 20, "price_per_unit": 3.50 },
       { "material_id": "mat2", "quantity": 5, "price_per_unit": 12.00 }
     ],
-    "total": 130.00,
-    "status": "validé"  
+    "subtotal": 130.00,
+    "tax_rate": 0.18,
+    "tax_amount": 23.40,
+    "total": 153.40,
+    "status": "accepted"
   },
   {
     "id": "dev2",
+    "quotationNumber": "DEV-2023-002",
     "client_id": "clt2",
     "date": "2023-10-28",
+    "expiry_date": "2023-11-28",
     "items": [
       { "material_id": "mat3", "quantity": 10, "price_per_unit": 8.75 }
     ],
-    "total": 87.50,
-    "status": "en cours" 
+    "subtotal": 87.50,
+    "tax_rate": 0.18,
+    "tax_amount": 15.75,
+    "total": 103.25,
+    "status": "sent"
   },
   {
     "id": "dev3",
+    "quotationNumber": "DEV-2023-003",
     "client_id": "clt1",
     "date": "2023-11-10",
+    "expiry_date": "2023-12-10",
     "items": [
       { "material_id": "mat1", "quantity": 5, "price_per_unit": 3.50 }
     ],
-    "total": 17.50,
-    "status": "brouillon" 
+    "subtotal": 17.50,
+    "tax_rate": 0.18,
+    "tax_amount": 3.15,
+    "total": 20.65,
+    "status": "draft"
   }
 ]

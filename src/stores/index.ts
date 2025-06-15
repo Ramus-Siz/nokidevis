@@ -1,12 +1,16 @@
 // src/stores/index.ts
-import useClientStore from './clientStore';
+import {useClientStore, ClientState} from './clientStore';
 import useMaterialStore from './materialStore';
-import useQuotationStore from './quotationStore';
+import {useQuotationStore, QuotationState} from './quotationStore';
 import useInvoiceStore from './invoiceStore'; // Ajoutez cette ligne
 
 export {
   useClientStore,
   useMaterialStore,
   useQuotationStore,
-  useInvoiceStore, // Exportez le nouveau store
+  useInvoiceStore
 };
+export type {
+    ClientState ,
+    QuotationState// Exportez le nouveau store
+  };

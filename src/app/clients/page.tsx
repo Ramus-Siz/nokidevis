@@ -5,18 +5,27 @@ import Link from "next/link";
 
 export default function ClientsPage() {
   return (
-    <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min p-8">
-      <div className="mb-12">
-        <Link href="/clients/nouveau">
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            Nouveau client
-          </Button>
-        </Link>
-      </div>
+    <div className="flex flex-col min-h-[100vh] bg-gray-50 p-8"> {/* Utilisation de flex-col et bg-gray-50 */}
+      <div className="container mx-auto px-4 py-8 bg-white rounded-lg shadow-lg border border-gray-200"> {/* Conteneur principal */}
+        <div className="flex justify-between items-center mb-8"> {/* Flex pour aligner titre et bouton */}
+          <h1 className="text-4xl font-extrabold text-gray-900 leading-tight"> {/* Titre plus grand et plus impactant */}
+            Gérer les Clients
+          </h1>
+          <Link href="/clients/nouveau">
+            <Button className="px-6 py-3 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg"> {/* Bouton stylisé */}
+              <Plus className="w-5 h-5 mr-2" /> {/* Icône plus grande */}
+              Ajouter un Client
+            </Button>
+          </Link>
+        </div>
 
-      <h1 className="text-xl font-bold mb-4">Liste de clients</h1>
-      <ClientsTable />
+        {/* Section de la table des clients */}
+        <div className="mt-6"> {/* Marge supérieure pour séparer le titre de la table */}
+          {/* Un sous-titre pour la table pourrait être ajouté ici si nécessaire */}
+          {/* <h2 className="text-2xl font-semibold text-gray-800 mb-4">Liste Détaillée</h2> */}
+          <ClientsTable />
+        </div>
+      </div>
     </div>
   );
 }

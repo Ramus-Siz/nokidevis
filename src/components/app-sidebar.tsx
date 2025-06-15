@@ -145,7 +145,7 @@ const data = {
       ],
     },
      {
-      title: "Paramettre",
+      title: "Paramettres",
       url: "/paramettres",
       icon: Settings,
       items: [

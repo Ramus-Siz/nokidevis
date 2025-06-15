@@ -1,13 +1,38 @@
 // src/types/index.ts
 
-export interface Client {
+import { DefaultSession, DefaultUser } from "next-auth";
+
+// ============== Authentification et Utilisateurs ==============
+export type UserRole = 'admin' | 'employee' | 'viewer'; // 'user' renommé en 'employee' pour plus de clarté
+export interface User {
   id: string;
-  name: string;
-  contact: string;
+  username: string;
   email: string;
-  phone: string;
+  password?: string; 
+  role: UserRole;
+  created_at?: string; 
+  updated_at?: string; 
 }
 
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      username: string;
+      email: string;
+      role: UserRole;
+    } & DefaultSession["user"];
+  }
+
+  interface User extends DefaultUser {
+    id: string;
+    username: string;
+    email: string;
+    role: UserRole;
+  }
+}
+
+// ============== Matériaux ==============
 export interface Material {
   id: string;
   name: string;
@@ -15,66 +40,74 @@ export interface Material {
   price_per_unit: number;
 }
 
+// ============== Clients ==============
+export interface Client {
+  id: string;
+  name: string;
+  contact: string; // Nom de la personne contact
+  email: string;
+  phone: string;
+  address: string; 
+}
+
+// ============== Devis (Quotations) ==============
 export interface QuotationItem {
   material_id: string;
   quantity: number;
-  price_per_unit: number; // Peut différer du prix du matériau, ex: remise
+  price_per_unit: number; 
 }
 
-// src/types/index.ts (Ajoutez ces interfaces)
-
-// Statuts possibles pour une facture
-export type InvoiceStatus = 'émise' | 'payée' | 'partiellement payée' | 'annulée' | 'en retard';
-
-// Interface pour un élément de facture (similaire à QuotationItem)
-export interface InvoiceItem {
-  material_id: string; // ID du matériau
-  quantity: number;    // Quantité du matériau
-  price_per_unit: number; // Prix unitaire au moment de la facturation
-  total_price: number; // Prix total pour cette ligne (quantity * price_per_unit)
-}
-
-// Interface pour une facture
-export interface Invoice {
-  id: string;         // ID unique de la facture (ex: INV-001)
-  quotation_id: string; // ID du devis à partir duquel la facture a été générée
-  client_id: string;  // ID du client associé à la facture
-  date: string;       // Date d'émission de la facture (format YYYY-MM-DD)
-  items: InvoiceItem[]; // Liste des éléments de la facture
-  total: number;      // Total de la facture
-  status: InvoiceStatus; // Statut de la facture (émise, payée, etc.)
-  // Vous pourriez ajouter d'autres champs comme:
-  // payment_date?: string; // Date de paiement
-  // due_date?: string;     // Date d'échéance
-  // notes?: string;        // Notes additionnelles
-}
-
-// Interface pour le store des factures
-export interface InvoiceStore {
-  invoices: Invoice[];
-  addInvoice: (newInvoice: Omit<Invoice, 'id' | 'total' | 'status'> & { total: number; status?: InvoiceStatus }) => void; // Total calculé à l'avance
-  getInvoiceById: (id: string) => Invoice | undefined;
-  updateInvoice: (updatedInvoice: Invoice) => void;
-  deleteInvoice: (id: string) => void;
-  updateInvoiceStatus: (id: string, newStatus: InvoiceStatus) => void;
-  // Vous pourriez ajouter une fonction pour calculer le total si nécessaire
-  // calculateInvoiceTotal: (items: InvoiceItem[]) => number;
-}
-
-
-export type QuotationStatus = 'brouillon' | 'en cours' | 'validé' | 'facturé'; 
-
-
+export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'invoiced'; // 'facturé' renommé en 'invoiced'
 export interface Quotation {
   id: string;
+  quotationNumber: string; // Nouveau: numéro de devis (ex: DEV-2025-001)
   client_id: string;
   date: string; // Format 'YYYY-MM-DD'
+  expiry_date: string; // Date de validité du devis
   items: QuotationItem[];
-  total: number;
-  status: QuotationStatus; // Ajout du statut
+  subtotal: number; // Somme des (quantity * price_per_unit)
+  tax_rate: number; // Taux de TVA (ex: 0.18 pour 18%)
+  tax_amount: number; // Montant de la TVA
+  total: number; // subtotal + tax_amount
+  status: QuotationStatus;
+  notes?: string;
+  created_by?: string; // ID de l'utilisateur qui a créé le devis
 }
 
-// Interfaces pour les fonctions CRUD dans les stores (inchangées car le statut est géré dans l'objet Quotation)
+// ============== Factures (Invoices) ==============
+// src/types/index.ts
+
+// ... (your other interfaces and types) ...
+
+// ============== Factures (Invoices) ==============
+export interface InvoiceItem {
+  material_id: string;
+  quantity: number;
+  price_per_unit: number;
+  total_price: number;
+}
+
+export type InvoiceStatus = 'pending' | 'paid' | 'partially_paid' | 'cancelled' | 'overdue';
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  quotation_id?: string | null; // Already fixed this one!
+  client_id: string;
+  date: string;
+  due_date: string;
+  items: InvoiceItem[];
+  subtotal: number;
+  tax_rate: number;
+  tax_amount: number;
+  total: number;
+  status: InvoiceStatus;
+  notes?: string;
+  created_by?: string;
+  payment_date?: string | null; // <-- MODIFICATION ICI : Ajoutez '| null'
+}
+
+
+
 export interface ClientStore {
   clients: Client[];
   addClient: (newClient: Omit<Client, 'id'>) => void;
@@ -93,13 +126,18 @@ export interface MaterialStore {
 
 export interface QuotationStore {
   quotations: Quotation[];
-  // Lors de l'ajout, le statut sera 'brouillon' par défaut
-  addQuotation: (newQuotation: Omit<Quotation, 'id' | 'total' | 'status'>) => void;
+  addQuotation: (newQuotation: Omit<Quotation, 'id' | 'subtotal' | 'tax_amount' | 'total' | 'status'>) => void;
   getQuotationById: (id: string) => Quotation | undefined;
   updateQuotation: (updatedQuotation: Quotation) => void;
   deleteQuotation: (id: string) => void;
-  // Optionnel: pour le calcul interne
-  calculateQuotationTotal: (items: QuotationItem[]) => number;
-  // Nouvelle fonction pour mettre à jour le statut spécifiquement
   updateQuotationStatus: (id: string, newStatus: QuotationStatus) => void;
+}
+
+export interface InvoiceStore {
+  invoices: Invoice[];
+  addInvoice: (newInvoice: Omit<Invoice, 'id' | 'subtotal' | 'tax_amount' | 'total' | 'status'>) => void;
+  getInvoiceById: (id: string) => Invoice | undefined;
+  updateInvoice: (updatedInvoice: Invoice) => void;
+  deleteInvoice: (id: string) => void;
+  updateInvoiceStatus: (id: string, newStatus: InvoiceStatus) => void;
 }
