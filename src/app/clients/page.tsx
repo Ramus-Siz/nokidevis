@@ -20,9 +20,8 @@ export default function ClientsPage() {
         </div>
 
         {/* Section de la table des clients */}
-        <div className="mt-6"> {/* Marge supérieure pour séparer le titre de la table */}
-          {/* Un sous-titre pour la table pourrait être ajouté ici si nécessaire */}
-          {/* <h2 className="text-2xl font-semibold text-gray-800 mb-4">Liste Détaillée</h2> */}
+        <div className="mt-6"> 
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Liste Détaillée</h2>
           <ClientsTable />
         </div>
       </div>

@@ -30,7 +30,7 @@ export const EditClientDialog: React.FC<EditClientDialogProps> = ({
   onOpenChange,
   clientId,
 }) => {
-  const updateClientInStore = useClientStore((state) => state.updateClient);
+  const updateClientInStore = useClientStore((state: { updateClient: any; }) => state.updateClient);
 
   const [currentClientData, setCurrentClientData] = useState<Client | null>(null);
   const [name, setName] = useState("");
@@ -114,7 +114,8 @@ export const EditClientDialog: React.FC<EditClientDialogProps> = ({
       }
 
       const clientResponse: Client = await res.json();
-      updateClientInStore(currentClientData.id, clientResponse);
+      // FIX: Pass only the updated client object
+      updateClientInStore(clientResponse); // <--- CHANGE THIS LINE
       toast.success("Client mis à jour avec succès !");
       onOpenChange(false);
     } catch (err: any) {

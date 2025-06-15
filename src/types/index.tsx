@@ -68,6 +68,7 @@ export interface Quotation {
   subtotal: number; // Somme des (quantity * price_per_unit)
   tax_rate: number; // Taux de TVA (ex: 0.18 pour 18%)
   tax_amount: number; // Montant de la TVA
+  total_amount: number;
   total: number; // subtotal + tax_amount
   status: QuotationStatus;
   notes?: string;

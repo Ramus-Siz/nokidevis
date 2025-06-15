@@ -32,7 +32,7 @@ type ClientFormValues = z.infer<typeof clientSchema>
 export default function NouveauClientPage() {
   const router = useRouter()
   // Utilisez l'action 'addClient' du store pour mettre à jour l'état local APRES la réussite de l'API
-  const addClientToStore = useClientStore((state) => state.addClient);
+  const addClientToStore = useClientStore((state: { addClient: any }) => state.addClient);
 
   const {
     register,

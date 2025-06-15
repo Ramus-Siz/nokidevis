@@ -1,10 +1,11 @@
+// src/components/devis/forms/editForm.tsx
 'use client'
 
 import React, { useEffect } from "react"
 import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Plus, Trash2, Save } from "lucide-react"
+import { Plus, Trash2, Save, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,24 +15,24 @@ import { toast } from "sonner"
 import { useQuotationStore, useClientStore, useMaterialStore } from "@/stores"
 import type { Quotation, QuotationItem } from "@/types"
 
-// Schéma de validation Zod (identique à celui de la création)
+// Schéma de validation Zod (identique)
 const devisSchema = z.object({
-  clientId: z.string().min(1, "Client requis"),
+  clientId: z.string().min(1, "Veuillez sélectionner un client."),
   lignesElements: z.array(
     z.object({
-      materiauId: z.string().min(1, "Matériau requis"),
-      quantite: z.coerce.number().min(1, "Quantité doit être au moins 1"),
-      price_per_unit: z.coerce.number().min(0, "Le prix unitaire doit être positif"),
+      materiauId: z.string().min(1, "Matériau est requis."),
+      quantite: z.coerce.number().min(1, "La quantité doit être au moins 1."),
+      price_per_unit: z.coerce.number().min(0, "Le prix unitaire doit être positif."),
     })
-  ).min(1, "Au moins une ligne de matériau est requise"),
+  ).min(1, "Veuillez ajouter au moins une ligne de matériau."),
 });
 
 type DevisFormValues = z.infer<typeof devisSchema>;
 
 interface QuotationEditFormProps {
-  initialQuotation: Quotation; // Le devis à éditer
-  onSave: () => void; // Callback à appeler après l'enregistrement
-  onCancel: () => void; // Callback à appeler si l'utilisateur annule
+  initialQuotation: Quotation;
+  onSave: () => void;
+  onCancel: () => void;
 }
 
 export default function QuotationEditForm({ initialQuotation, onSave, onCancel }: QuotationEditFormProps) {
@@ -57,12 +58,10 @@ export default function QuotationEditForm({ initialQuotation, onSave, onCancel }
 
   const lignesElements = watch("lignesElements");
 
-  // Met à jour le prix unitaire quand le matériau est sélectionné ou initialisé
   useEffect(() => {
     lignesElements.forEach((ligne, index) => {
       if (ligne.materiauId) {
         const material = getMaterialById(ligne.materiauId);
-        // Ne met à jour que si le prix est différent de celui du matériau
         if (material && material.price_per_unit !== ligne.price_per_unit) {
           setValue(`lignesElements.${index}.price_per_unit`, material.price_per_unit, { shouldValidate: true });
         }
@@ -71,12 +70,11 @@ export default function QuotationEditForm({ initialQuotation, onSave, onCancel }
   }, [lignesElements, getMaterialById, setValue]);
 
   const total = lignesElements.reduce((acc, l) => {
-    const price = l.price_per_unit; // Utilise le prix unitaire déjà dans la ligne
+    const price = l.price_per_unit;
     return acc + price * l.quantite;
   }, 0);
 
   const onSubmit = async (data: DevisFormValues) => {
-    // Préparer les items pour le store (QuotationItem[])
     const updatedItems: QuotationItem[] = data.lignesElements.map(item => ({
       material_id: item.materiauId,
       quantity: item.quantite,
@@ -84,56 +82,65 @@ export default function QuotationEditForm({ initialQuotation, onSave, onCancel }
     }));
 
     const updatedQuotation = {
-      ...initialQuotation, // Garde l'ID et les autres propriétés non modifiées par le formulaire
+      ...initialQuotation,
       client_id: data.clientId,
       items: updatedItems,
-      // Le total sera recalculé par `updateQuotation` dans le store
+      // Le total n'est pas envoyé si votre backend le calcule, sinon incluez-le
+      // total: total, // Décommentez si votre backend ne calcule PAS le total
     };
 
     try {
-      updateQuotation(updatedQuotation); // Met à jour le devis via le store
-      toast.success("Devis modifié avec succès !");
-      onSave(); // Ferme le modal ou gère la suite
+      // APPEL À L'API VIA L'ACTION DU STORE
+      await updateQuotation(updatedQuotation); // L'action updateQuotation du store gère maintenant l'API et les toasts
+      onSave(); // Ferme le modal ou gère la suite UNIQUEMENT après succès API
     } catch (error) {
-      console.error("Erreur lors de la modification du devis:", error);
-      toast.error("Erreur lors de la modification du devis.");
+      // L'erreur est déjà toastée par l'action du store, mais vous pouvez ajouter un log ici
+      console.error("Erreur soumission formulaire de devis:", error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Sélection du client */}
-      <div>
-        <Label htmlFor="clientId" className="mb-2">Client</Label>
-        <ComboboxClient
-          clients={allClients.map(c => ({ id: c.id, name: c.name }))}
-          value={watch("clientId")}
-          onChange={(val) => setValue("clientId", val, { shouldValidate: true })}
-          placeholder="Choisir un client"
-        />
-        {errors.clientId && (
-          <p className="text-sm text-red-500 mt-1">{errors.clientId.message}</p>
-        )}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 p-4">
+      {/* ... (le reste du design amélioré du formulaire reste le même) ... */}
+
+      {/* Section Client */}
+      <div className="space-y-4 p-6 border rounded-lg shadow-sm bg-gray-50">
+        <h2 className="text-xl font-semibold text-gray-800 border-b pb-2 mb-4">Informations du Client</h2>
+        <div>
+          <Label htmlFor="clientId" className="text-gray-700 mb-2">Client</Label>
+          <ComboboxClient
+            clients={allClients.map(c => ({ id: c.id, name: c.name }))}
+            value={watch("clientId")}
+            onChange={(val) => setValue("clientId", val, { shouldValidate: true })}
+            placeholder="Sélectionner un client..."
+          />
+          {errors.clientId && (
+            <p className="text-sm text-red-600 mt-2 flex items-center">
+              <XCircle className="h-4 w-4 mr-1" /> {errors.clientId.message}
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* Lignes de matériaux */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Label className="text-lg mb-4">Matériaux</Label>
+      {/* Section Lignes de matériaux */}
+      <div className="space-y-6 p-6 border rounded-lg shadow-sm bg-gray-50">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b pb-2 mb-4">
+          <h2 className="text-xl font-semibold text-gray-800 mb-2 sm:mb-0">Détails des Matériaux</h2>
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={() => append({ materiauId: "", quantite: 1, price_per_unit: 0 })}
+            className="flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
           >
-            <Plus className="w-4 h-4 mr-1" /> Ajouter une ligne
+            <Plus className="w-4 h-4" /> Ajouter une ligne
           </Button>
         </div>
 
         {fields.map((field, index) => (
-          <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            <div>
-              <Label htmlFor={`lignesElements.${index}.materiauId`} className="mb-2">Matériau</Label>
+          <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end border p-4 rounded-md bg-white shadow-sm">
+            <div className="md:col-span-2">
+              <Label htmlFor={`lignesElements.${index}.materiauId`} className="text-gray-700 mb-2">Matériaux</Label>
               <ComboboxMateriau
                 value={watch(`lignesElements.${index}.materiauId`)}
                 onChange={(val) => {
@@ -142,64 +149,76 @@ export default function QuotationEditForm({ initialQuotation, onSave, onCancel }
                   setValue(`lignesElements.${index}.price_per_unit`, selectedMaterial?.price_per_unit ?? 0, { shouldValidate: true });
                 }}
                 materiaux={allMaterials.map(m => ({ id: m.id, name: m.name, prix: m.price_per_unit }))}
+                
               />
               {errors.lignesElements?.[index]?.materiauId && (
-                <p className="text-sm text-red-500 mt-1">{errors.lignesElements[index]?.materiauId?.message}</p>
+                <p className="text-sm text-red-600 mt-1 flex items-center">
+                  <XCircle className="h-2 w-2 mr-1" /> {errors.lignesElements[index]?.materiauId?.message}
+                </p>
               )}
             </div>
 
             <div>
-              <Label htmlFor={`lignesElements.${index}.quantite`} className="mb-2">Quantité</Label>
+              <Label htmlFor={`lignesElements.${index}.quantite`} className="text-gray-700 mb-2">Quantité</Label>
               <Input
                 type="number"
                 {...register(`lignesElements.${index}.quantite`)}
+                className="w-full"
               />
               {errors.lignesElements?.[index]?.quantite && (
-                <p className="text-sm text-red-500 mt-1">{errors.lignesElements[index]?.quantite?.message}</p>
+                <p className="text-sm text-red-600 mt-1 flex items-center">
+                  <XCircle className="h-4 w-4 mr-1" /> {errors.lignesElements[index]?.quantite?.message}
+                </p>
               )}
             </div>
 
             <div>
-              <Label htmlFor={`lignesElements.${index}.price_per_unit`} className="mb-2">Prix unitaire</Label>
+              <Label htmlFor={`lignesElements.${index}.price_per_unit`} className="text-gray-700 mb-2">Prix unitaire (€)</Label>
               <Input
                 type="number"
-                value={watch(`lignesElements.${index}.price_per_unit`)}
+                value={watch(`lignesElements.${index}.price_per_unit`).toFixed(2)}
                 {...register(`lignesElements.${index}.price_per_unit`, { valueAsNumber: true })}
-                readOnly // Généralement en lecture seule pour éviter les erreurs de saisie
+                readOnly
+                className="w-full bg-gray-100 cursor-not-allowed"
               />
-               {errors.lignesElements?.[index]?.price_per_unit && (
-                <p className="text-sm text-red-500 mt-1">{errors.lignesElements[index]?.price_per_unit?.message}</p>
+                {errors.lignesElements?.[index]?.price_per_unit && (
+                <p className="text-sm text-red-600 mt-1 flex items-center">
+                  <XCircle className="h-4 w-4 mr-1" /> {errors.lignesElements[index]?.price_per_unit?.message}
+                </p>
               )}
             </div>
 
-            <div className="flex justify-start">
+            <div className="flex justify-center sm:justify-start items-center">
               <Button
                 type="button"
-                variant="ghost"
+                variant="destructive"
                 size="icon"
                 onClick={() => remove(index)}
+                className="h-9 w-9"
               >
-                <Trash2 className="w-4 h-4 text-red-500" />
+                <Trash2 className="w-5 h-5" />
               </Button>
             </div>
           </div>
         ))}
 
         {errors.lignesElements && typeof errors.lignesElements.message === 'string' && (
-          <p className="text-sm text-red-500">{errors.lignesElements.message}</p>
+          <p className="text-sm text-red-600 mt-2 flex items-center">
+            <XCircle className="h-4 w-4 mr-1" /> {errors.lignesElements.message}
+          </p>
         )}
       </div>
 
-      {/* Total et validation */}
-      <div className="flex justify-between items-center border-t pt-4">
-        <span className="font-semibold text-lg">
-          Total : {total.toFixed(2)} $
-        </span>
-        <div className="flex gap-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
+      {/* Total et Boutons d'action */}
+      <div className="flex flex-col sm:flex-row justify-between items-center border-t pt-6 mt-8">
+        <div className="font-bold text-2xl text-gray-900 mb-4 sm:mb-0">
+          Total du devis : <span className="text-blue-700">{total.toFixed(2)} €</span>
+        </div>
+        <div className="flex gap-3">
+          <Button type="button" variant="outline" onClick={onCancel} className="px-6 py-3 text-gray-700 border-gray-300 hover:bg-gray-100">
             Annuler
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-md">
             <Save className="w-4 h-4 mr-2" />
             {isSubmitting ? "Enregistrement..." : "Enregistrer les modifications"}
           </Button>
