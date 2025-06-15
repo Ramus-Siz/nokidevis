@@ -85,6 +85,8 @@ export async function POST(request: Request) {
       subtotal,
       tax_amount,
       total,
+      total_amount: 0,
+      last_updated: ''
     };
 
     quotations.push(newQuotation);

@@ -6,13 +6,21 @@
     "date": "2023-11-01",
     "expiry_date": "2023-12-01",
     "items": [
-      { "material_id": "mat1", "quantity": 20, "price_per_unit": 3.50 },
-      { "material_id": "mat2", "quantity": 5, "price_per_unit": 12.00 }
+      {
+        "material_id": "mat1",
+        "quantity": 20,
+        "price_per_unit": 3.5
+      },
+      {
+        "material_id": "mat2",
+        "quantity": 5,
+        "price_per_unit": 12
+      }
     ],
-    "subtotal": 130.00,
+    "subtotal": 130,
     "tax_rate": 0.18,
-    "tax_amount": 23.40,
-    "total": 153.40,
+    "tax_amount": 23.4,
+    "total": 153.4,
     "status": "accepted"
   },
   {
@@ -22,9 +30,13 @@
     "date": "2023-10-28",
     "expiry_date": "2023-11-28",
     "items": [
-      { "material_id": "mat3", "quantity": 10, "price_per_unit": 8.75 }
+      {
+        "material_id": "mat3",
+        "quantity": 10,
+        "price_per_unit": 8.75
+      }
     ],
-    "subtotal": 87.50,
+    "subtotal": 87.5,
     "tax_rate": 0.18,
     "tax_amount": 15.75,
     "total": 103.25,
@@ -37,12 +49,17 @@
     "date": "2023-11-10",
     "expiry_date": "2023-12-10",
     "items": [
-      { "material_id": "mat1", "quantity": 5, "price_per_unit": 3.50 }
+      {
+        "material_id": "mat1",
+        "quantity": 5,
+        "price_per_unit": 3.5
+      }
     ],
-    "subtotal": 17.50,
+    "subtotal": 17.5,
     "tax_rate": 0.18,
     "tax_amount": 3.15,
     "total": 20.65,
-    "status": "draft"
+    "status": "accepted",
+    "last_updated": "2025-06-15T15:44:53.044Z"
   }
 ]

@@ -2,8 +2,9 @@
 
 import { NextResponse } from 'next/server';
 import { readData, writeData } from '@/lib/fileDb';
-import { Quotation, QuotationItem, Client, Material } from '@/types';
+import { Quotation, QuotationItem, Client, Material, QuotationStatus } from '@/types';
 import { z } from 'zod';
+import { updateQuotationStatus } from '@/lib/data';
 
 // Fichiers de données
 const quotationsFileName = 'quotations.json';
@@ -167,6 +168,79 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     return NextResponse.json({ message: 'Erreur interne du serveur lors de la mise à jour du devis.' }, { status: 500 });
   }
 }
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const { id } = params;
+
+  if (!id) {
+    return NextResponse.json({ message: 'L\'ID du devis est requis.' }, { status: 400 });
+  }
+
+  try {
+    const body = await request.json();
+
+    // Check if the request is specifically for status update
+    if ('status' in body) {
+      const { status } = body;
+
+      if (!status) {
+        return NextResponse.json({ message: 'Le nouveau statut est requis dans le corps de la requête.' }, { status: 400 });
+      }
+
+      const statusValidation = z.enum(['draft', 'sent', 'accepted', 'rejected', 'invoiced']).safeParse(status);
+
+      if (!statusValidation.success) {
+        return NextResponse.json({ message: 'Statut invalide fourni.', errors: statusValidation.error.errors }, { status: 400 });
+      }
+
+      // Use the imported updateQuotationStatus function
+      const updatedQuotation = await updateQuotationStatus(id, statusValidation.data);
+
+      if (!updatedQuotation) {
+        return NextResponse.json({ message: `Devis avec l'ID ${id} non trouvé.` }, { status: 404 });
+      }
+
+      return NextResponse.json(updatedQuotation, { status: 200 });
+    } else {
+      // Handle other potential partial updates if your API supports them.
+      // For now, if 'status' isn't in the body, it's considered an invalid PATCH.
+      return NextResponse.json({ message: 'Requête PATCH invalide. Seule la mise à jour du statut est supportée pour cette route ou le corps de la requête est vide.' }, { status: 400 });
+    }
+
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ message: 'Erreur de validation des données (PATCH).', errors: error.errors }, { status: 400 });
+    }
+    console.error(`Erreur PATCH /api/quotations/${params.id}:`, error);
+    return NextResponse.json({ message: 'Erreur interne du serveur lors de la mise à jour du devis (PATCH).' }, { status: 500 });
+  }
+}
+async function updateQuotationStatusHelper(id: string, newStatus: QuotationStatus): Promise<Quotation | null> {
+  let quotations = await readData<Quotation>(quotationsFileName);
+  const index = quotations.findIndex(q => q.id === id);
+
+  if (index === -1) {
+    return null; // Quotation not found
+  }
+
+  // Update the status
+  quotations[index].status = newStatus;
+
+  // You might want to update a 'last_updated' timestamp here
+  quotations[index].last_updated = new Date().toISOString(); // Added this for consistency
+
+  await writeData<Quotation>(quotationsFileName, quotations);
+  return quotations[index]; // Return the updated quotation
+}
+
+
+
+// ... (code for PUT method) ...
+
+
+// --- PATCH (Mise à jour partielle) un devis par ID ---
 
 // DELETE un devis par ID (inchangé)
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {

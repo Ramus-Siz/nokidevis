@@ -59,6 +59,7 @@ export interface QuotationItem {
 
 export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'invoiced'; // 'facturé' renommé en 'invoiced'
 export interface Quotation {
+  last_updated: string;
   id: string;
   quotationNumber: string; // Nouveau: numéro de devis (ex: DEV-2025-001)
   client_id: string;

@@ -187,7 +187,7 @@ export default function QuotationTable({ onlyValidated = false }: QuotationTable
 
   const handleChangeStatus = async (id: string, newStatus: QuotationStatus) => {
     try {
-      const res = await fetch(`/api/quotations/${id}/status`, {
+      const res = await fetch(`/api/quotations/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -316,7 +316,7 @@ export default function QuotationTable({ onlyValidated = false }: QuotationTable
                               <CheckCircle2 className="h-4 w-4 text-green-500" /> Change Status
                             </DropdownMenuSubTrigger>
                             <DropdownMenuSubContent className="w-[180px]">
-                              <DropdownMenuLabel>Available Statuses</DropdownMenuLabel>
+                              <DropdownMenuLabel>Statut du devis</DropdownMenuLabel>
                               <DropdownMenuSeparator />
                               {availableStatuses.map((statusOption) => (
                                 <DropdownMenuItem

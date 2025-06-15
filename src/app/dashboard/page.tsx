@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FileText, Users, DollarSign, Loader2 } from "lucide-react"; // Ajout de Loader2
+import { FileText, Users, DollarSign, Loader2, FileWarning, Plus } from "lucide-react"; // Ajout de Loader2
 import Link from "next/link";
 
 import {
@@ -22,7 +22,11 @@ import DevisTable from "@/components/devis/devisTable";
 
 // Import des types pour la typographie des données
 import { Quotation, Client, Invoice } from '@/types';
+import { Button } from '@/components/ui/button';
+import { useClientStore } from '@/stores';
+import { toast } from 'sonner';
 
+// Composant SkeletonCard pour un meilleur effet de chargement
 const SkeletonCard = () => (
   <Card className="aspect-video p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300">
     <CardHeader className="flex flex-row items-center justify-between pb-2 px-0 pt-0">
@@ -45,6 +49,13 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+
+  const setClients = useClientStore((state: { setClients: any; }) => state.setClients);
+    const [loadingClients, setLoadingClients] = useState(true);
+    const [clientLoadError, setClientLoadError] = useState<string | null>(null);
+  
+   
+
   useEffect(() => {
     async function fetchData() {
       try {
@@ -62,6 +73,7 @@ export default function DashboardPage() {
         const clients: Client[] = await clientsRes.json();
         const invoices: Invoice[] = await invoicesRes.json();
 
+        setClients(clients);
         setTotalQuotations(quotations.length);
         setAcceptedQuotations(quotations.filter(q => q.status === 'accepted').length);
         setTotalClients(clients.length);
@@ -69,6 +81,8 @@ export default function DashboardPage() {
 
       } catch (err: any) {
         console.error("Échec de la récupération des données du dashboard:", err);
+        setClientLoadError(err.message || "Erreur inconnue lors du chargement des clients.");
+        toast.error(`Échec du chargement des clients: ${err.message || 'Vérifiez la console.'}`);
         setError(`Échec du chargement des données: ${err.message || 'Erreur inconnue'}`);
       } finally {
         setLoading(false);
